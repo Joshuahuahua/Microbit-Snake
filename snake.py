@@ -8,7 +8,7 @@ from random import randint
 settings = {
     'time_incr': 500, # Time between each board update/snake movement
     'wrap': True, # If the snake can "wrap around" the board
-    'startingLoc': [2, 2], # Snake's starting location
+    'starting_loc': [2, 2], # Snake's starting location
     'fruit_count': 3, # How many fruit are generated each "fruit cycle"
     'brightness': { # Brightness values for game elements
         'head': 9,
@@ -22,8 +22,8 @@ settings = {
 class Snake:
     # List containing the x and y coords for every 'block' of the snake's body (prepopulated with the starting coords)
     body = [{
-        'x': settings['startingLoc'][0]%5,
-        'y': settings['startingLoc'][1]%5
+        'x': settings['starting_loc'][0],
+        'y': settings['starting_loc'][1]
     }]
     # Variable used for calculating/validating the next position for the head of the snake
     next = {
@@ -39,20 +39,15 @@ class Snake:
         
         # Calculate the next position;
         # Move Left
-        if direction == 0:
-            self.next['x'], self.next['y'] = self.next['x']-1, self.next['y']
+        if direction == 0: self.next['x'] = self.next['x']-1
         # Move Down
-        elif direction == 1:
-            self.next['x'], self.next['y'] = self.next['x'], self.next['y']+1
+        elif direction == 1: self.next['y'] = self.next['y']+1
         # Move Right
-        elif direction == 2:
-            self.next['x'], self.next['y'] = self.next['x']+1, self.next['y']
+        elif direction == 2: self.next['x'] = self.next['x']+1
         # Move Up
-        elif direction == 3:
-            self.next['x'], self.next['y'] = self.next['x'], self.next['y']-1
+        elif direction == 3: self.next['y'] = self.next['y']-1
         # Dont move (direction set to 5 to implement "press button to start")
-        else:
-            pass
+        else: pass
         
         # If the snake can "wrap around" the board, wrap coords accordingly
         if settings['wrap']:
@@ -101,11 +96,9 @@ class Board:
             if len(snake.body[0]) > 1 and snake.body[0] in snake.body[1:]:
                 break
             # If "wrap" is false, break if the snake has gone out of bounds
-            if (not settings['wrap'] and
-                (snake.body[0]['x'] not in range(0, 5) or
-                snake.body[0]['y'] not  in range(0, 5))):
-                snake.body[0] = snake_last_loc
-                break
+            if not settings['wrap']:
+                if snake.body[0]['x'] not in range(0, 5) or snake.body[0]['y'] not  in range(0, 5):
+                    break
             
             # Render Board
             self.draw(snake)
@@ -121,12 +114,11 @@ class Board:
                 # Add the last location of the snake to the end
                 snake.body.append(snake_last_loc)
             
-            
             sleep(settings['time_incr'])
         
         # If snake collided with itself, play animation, and show score
         sleep(1000)
-        snake.body[0] = snake_last_loc
+        snake.body[0] = snake_last_loc # Stop's the game from trying to render the snake off the board
         for i in snake.body[::-1]:
             snake.body.remove(i)
             display.clear()
@@ -134,6 +126,7 @@ class Board:
             sleep(70)
         display.clear()
         display.set_pixel(snake_last_loc['x'], snake_last_loc['y'], settings['brightness']['head'])
+        
         sleep(1000)
         display.scroll('Game Over!', 100)
         while True:
